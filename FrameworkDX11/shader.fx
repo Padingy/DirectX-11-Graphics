@@ -168,23 +168,22 @@ struct LightingResult
 	float4 Specular;
 };
 
-LightingResult DoPointLight(Light light, float3 vertexToEye, float4 vertexPos, float3 N)
+LightingResult DoPointLight(Light light, float3 vertexToEye, float4 vertexPos, float3 N, float3 lightVectorTS)
 {
 	LightingResult result;
 
-	float3 LightDirectionToVertex = (vertexPos - light.Position).xyz;
+	float3 LightDirectionToVertex = (light.Position - vertexPos).xyz;
 	float distance = length(LightDirectionToVertex);
 	LightDirectionToVertex = LightDirectionToVertex / distance;
 
-	float3 vertexToLight = (light.Position - vertexPos).xyz;
+    float3 vertexToLight = light.Position + (light.Direction * distance);
 	distance = length(vertexToLight);
-	vertexToLight = vertexToLight / distance;
 
 	float attenuation = DoAttenuation(light, distance);
 	attenuation = 1;
 
 
-	result.Diffuse = DoDiffuse(light, vertexToLight, N) * attenuation;
+    result.Diffuse = DoDiffuse(light, -lightVectorTS, N) * attenuation;
 	result.Specular = DoSpecular(light, vertexToEye, LightDirectionToVertex, N) * attenuation;
 
 	return result;
@@ -206,9 +205,9 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
     return TBN;
 }
 
-LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 lightVectorTS)
+LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 lightVectorTS, float3 eyeVectorTS)
 {
-	float3 vertexToEye = normalize(EyePosition - vertexPos).xyz;
+	float3 vertexToEye = eyeVectorTS - vertexPos;
 
 	LightingResult totalResult = { { 0, 0, 0, 0 },{ 0, 0, 0, 0 } };
 
@@ -220,7 +219,7 @@ LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 lightVectorTS)
 		if (!Lights[i].Enabled)
 			continue;
 
-		result = DoPointLight(Lights[i], lightVectorTS, vertexPos, N);
+        result = DoPointLight(Lights[i], vertexToEye, vertexPos, N, lightVectorTS);
 
 		totalResult.Diffuse += result.Diffuse;
 		totalResult.Specular += result.Specular;
@@ -398,7 +397,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 		bumpMap.z = -bumpMap.z;
 
-		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS);
+		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -433,7 +432,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 		bumpMap.z = -bumpMap.z;
 
-		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight);
+        LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -466,7 +465,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 		bumpMap.z = -bumpMap.z;
 
-		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight);
+        LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -491,7 +490,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 	bumpMap.z = -bumpMap.z;
 
-    LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS);
+    LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS, vertexToEyeTS);
 	float4 texColor = { 1, 1, 1, 1 };
 
 

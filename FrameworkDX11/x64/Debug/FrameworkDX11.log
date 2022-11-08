@@ -1,13 +1,11 @@
-﻿  DrawableGameObject.cpp
-  main.cpp
+﻿  main.cpp
 C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(381,14): warning C4189: 'io': local variable is initialized but not referenced
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(565,48): warning C4100: 'height': unreferenced formal parameter
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(565,37): warning C4100: 'width': unreferenced formal parameter
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(643,7): warning C4189: 'xPos': local variable is initialized but not referenced
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(644,7): warning C4189: 'yPos': local variable is initialized but not referenced
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(787,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(788,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(789,67): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(789,45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(568,48): warning C4100: 'height': unreferenced formal parameter
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(568,37): warning C4100: 'width': unreferenced formal parameter
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(650,7): warning C4189: 'xPos': local variable is initialized but not referenced
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(651,7): warning C4189: 'yPos': local variable is initialized but not referenced
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(794,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(795,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(796,67): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(796,45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   FrameworkDX11.vcxproj -> C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\x64\Debug\FrameworkDX11.exe

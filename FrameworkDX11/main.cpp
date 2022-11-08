@@ -382,6 +382,9 @@ HRESULT Application::InitDevice()
     ImGui_ImplWin32_Init(g_hWnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pImmediateContext);
     ImGui::StyleColorsDark();
+    ImGui::GetStyle().WindowRounding = 0.0f;
+    ImGui::GetStyle().ChildRounding = 0.0f;
+    ImGui::GetStyle().FrameRounding = 0.0f;
 
     return S_OK;
 }
@@ -631,10 +634,14 @@ void Application::CleanupDevice()
 //--------------------------------------------------------------------------------------
 // Called every time the application receives a message
 //--------------------------------------------------------------------------------------
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
     PAINTSTRUCT ps;
     HDC hdc;
+
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
 
     switch( message )
     {
@@ -903,16 +910,28 @@ void Application::Render()
     // Feed inputs to dear imgui, start new frame
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+    {
+        ImGui::NewFrame();
+        static ImVec2 pos(0, 0);
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        bool open;
+        ImGui::Begin("Positions", &open);
+        
 
-    // Any application code here
-    ImGui::Text("Hello, world!");
-
-    ImGui::Text("Movement Control Type: %s", currentView.c_str());
-    ImGui::Text("Light at: (%.5f)(%.5f)(%.5f)", LightPosition.x, LightPosition.y, LightPosition.z);
-    ImGui::Text("Current View: (%.5f)(%.5f)(%.5f)", camera->GetPos().x, camera->GetPos().y, camera->GetPos().z);
-    ImGui::Text("Shader Type: %s", shaderType.c_str());
-    ImGui::Text("Texture Type: %s", textureType.c_str());
+        ImGui::Text("Movement Control Type: %s", currentView.c_str());
+        ImGui::Text("Light at: (%.5f)(%.5f)(%.5f)", LightPosition.x, LightPosition.y, LightPosition.z);
+        ImGui::Text("Current View: (%.5f)(%.5f)(%.5f)", camera->GetPos().x, camera->GetPos().y, camera->GetPos().z);
+        ImGui::Text("Shader Type: %s", shaderType.c_str());
+        ImGui::Text("Texture Type: %s", textureType.c_str());
+        ImGui::End();
+    }
+    {
+        ImGui::Begin("Light");
+        ImGui::SliderFloat("Light Position X", &LightPosition.x, -10.0f, 10.0f);
+        ImGui::SliderFloat("Light Position Y", &LightPosition.y, -10.0f, 10.0f);
+        ImGui::SliderFloat("Light Position Z", &LightPosition.z, -10.0f, 10.0f);
+        ImGui::End();
+    }
     // Render dear imgui into screen
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
