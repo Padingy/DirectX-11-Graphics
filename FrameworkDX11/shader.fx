@@ -206,7 +206,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
     return TBN;
 }
 
-LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 eyeVectorTS)
+LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 lightVectorTS)
 {
 	float3 vertexToEye = normalize(EyePosition - vertexPos).xyz;
 
@@ -220,7 +220,7 @@ LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 eyeVectorTS)
 		if (!Lights[i].Enabled)
 			continue;
 
-		result = DoPointLight(Lights[i], eyeVectorTS, vertexPos, N);
+		result = DoPointLight(Lights[i], lightVectorTS, vertexPos, N);
 
 		totalResult.Diffuse += result.Diffuse;
 		totalResult.Specular += result.Specular;
@@ -266,7 +266,6 @@ float2 ParallaxSteepMapping(float2 texCoords, float3 viewDir)
 	//current texture coords
 	float height_scale = 0.1f;
 	float2 p = viewDir.xy * height_scale;
-	p.y = -p.y;
 	float2 deltaTexCoords = p / numLayers;
 
 	float2 currentTexCoords = texCoords;
@@ -300,6 +299,7 @@ float2 ParallaxOcclusionMapping(float2 texCoords, float3 normal, float3 viewDir)
     float currentLayerHeight = 0.0f;
 	
     float height_scale = 0.2f;
+    viewDir.z = -viewDir.z;
     float2 p = height_scale * viewDir.xy;
 	
     float2 deltaTexCoords = p / numLayers;
@@ -339,29 +339,25 @@ PS_INPUT VS( VS_INPUT input )
     output.Pos = mul( input.Pos, World );
 	output.worldPos = output.Pos;
     output.Pos = mul(mul(output.Pos, View), Projection);
-    
-	//output.Norm = mul(float4(input.Norm, 1), World).xyz;
-	//output.tangent = mul(float4(input.tangent, 1), World).xyz;
-	//output.binormal = mul(float4(input.binormal, 1), World).xyz;
-    output.tangent = input.tangent;
-    output.binormal = input.binormal;
-    output.Norm = input.Norm;
+	
+    output.Norm = mul(input.Norm, (float3x3) World).xyz;
+    output.tangent = mul(input.tangent, (float3x3) World).xyz;
+    output.binormal = mul(input.binormal, (float3x3) World).xyz;
 	
 	output.Tex = input.Tex;
-
-
+	
 	/***********************************************
 	MARKING SCHEME: Tangent Space
 	DESCRIPTION: CREATING THE TBN MATRIX TO TRANSPOSE FROM WORLD SPACE TO TANGENT SPACE AND USING THIS IN THE FUNCTION CREATED
 	***********************************************/
 	
-	float3x3 TBN_inv = transpose(float3x3(input.tangent, input.binormal, input.Norm));
+    float3x3 TBN_inv = transpose(float3x3(normalize(input.tangent), normalize(input.binormal), normalize(input.Norm)));
 
     float3 lightPosWorld = mul(Lights[0].Position, World);
     output.posTS = mul(output.worldPos.xyz, TBN_inv);
     output.lightVectorTS = mul(lightPosWorld.xyz, TBN_inv);
-    output.eyeVectorTS = mul(EyePosition.xyz, TBN_inv);
-    output.eyePosTS = normalize(mul(EyePosition, TBN_inv) - output.posTS);
+    output.eyeVectorTS = mul(EyePosition.xyz, World);
+    output.eyePosTS = mul(normalize(EyePosition - output.worldPos).xyz, TBN_inv);
 
     return output;
 }
@@ -380,43 +376,13 @@ QuadVS_Output QuadVS(QuadVS_Input Input)
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-    //float3 vertexToEye = normalize(EyePosition - IN.worldPos).xyz;
-    //float3 vertexToLight = normalize(Lights[0].Position - IN.worldPos).xyz;
-    //float3 viewDir = normalize(vertexToEye);
-
-    //IN.Norm = normalize(IN.Norm);
-    //float3 T = normalize(mul(IN.tangent, World));
-    //float3 B = normalize(mul(IN.binormal, World));
-    //float3 N = normalize(mul(IN.Norm, World));
-
-    //float3 binormal = cross(IN.tangent, IN.Norm);
-
-    //float3x3 TBN = float3x3(T, B, N);
-    //float3x3 TBN_inv = transpose(float3x3(IN.tangent, IN.binormal, IN.Norm));
-	
-    ////float3x3 TBN = computeTBNMatrixB(IN.Norm, IN.tangent, IN.binormal);
-
-    //float3 vertexToLightTS = mul(vertexToLight, TBN);
-    //float3 vertexToEyeTS = VectorToTangentSpace(vertexToEye, TBN_inv);
-
-    ////IN.lightVectorTS = VectorToTangentSpace(vertexToLight.xyz, TBN_inv);
-    ////IN.eyeVectorTS = VectorToTangentSpace(-vertexToEye.xyz, TBN_inv);
-	
-    ////float3 vertexToEyeTS = normalize(EyePosition - IN.worldPos).xyz;
-    //float3 toEyeTS = normalize(vertexToEyeTS);
-	
     float3 vertexToLight = normalize(Lights[0].Position - IN.worldPos).xyz;
     float3 vertexToEye = normalize(EyePosition - IN.worldPos).xyz;
-    float3 toEyeTS = normalize(vertexToEye);
 	
-    float3 viewDir = normalize(IN.eyePosTS - IN.posTS);
+    float3x3 TBN_inv = transpose(float3x3(normalize(IN.tangent), normalize(IN.binormal), normalize(IN.Norm)));
 	
-    IN.Norm = normalize(IN.Norm);
-	
-    float3x3 TBN = computeTBNMatrixB(IN.Norm, IN.tangent, IN.binormal);
-	
-    float3 vertexToLightTS = mul(vertexToLight, TBN);
-    float3 vertexToEyeTS = mul(toEyeTS, TBN);
+    float3 vertexToLightTS = mul(vertexToLight, TBN_inv);
+    float3 vertexToEyeTS = mul(vertexToEye, TBN_inv);
 
 	if (Material.choice == 0)
 	{
@@ -432,7 +398,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 		bumpMap.z = -bumpMap.z;
 
-		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), IN.lightVectorTS);
+		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -455,7 +421,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 		
 		//float3 viewDir = normalize(EyePosition - IN.worldPos);
-		float2 texCoords = ParallaxMapping(IN.Tex, viewDir);
+		float2 texCoords = ParallaxSteepMapping(IN.Tex, vertexToEyeTS);
 
 		if (texCoords.x >= 1.0 || texCoords.y >= 1.0 || texCoords.x <= 0.0 || texCoords.y <= 0.0)
 			discard;
@@ -488,7 +454,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	else if (Material.choice == 2)
 	{
 		//float3 viewDir = normalize(EyePosition.xyz - IN.worldPos.xyz);
-        float2 texCoords = ParallaxOcclusionMapping(IN.Tex, IN.Norm, IN.eyePosTS);
+        float2 texCoords = ParallaxOcclusionMapping(IN.Tex, IN.Norm, vertexToEyeTS);
 
 		if (texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
 			discard;
@@ -525,7 +491,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
 	bumpMap.z = -bumpMap.z;
 
-	LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), IN.lightVectorTS);
+    LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS);
 	float4 texColor = { 1, 1, 1, 1 };
 
 
