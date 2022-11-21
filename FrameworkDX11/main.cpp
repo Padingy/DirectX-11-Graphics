@@ -575,7 +575,7 @@ HRESULT		Application::InitWorld(int width, int height)
     XMFLOAT4 Up = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
     camera = new Camera(Eye, At, Up, g_viewWidth, g_viewHeight, 0.01f, 100.0f, 5.0f, LookTo, "camera");
 
-    
+    g_GameObject.m_material.Material.choice = 0;
     
     g_View = XMLoadFloat4x4(&camera->camera._view);
 
@@ -752,20 +752,20 @@ void Application::Update()
     {
         if (GetAsyncKeyState(0x57)) //W
         {
-            LightPosition.x = LightPosition.x + 1;
+            LightPosition.y = LightPosition.y + 1;
 
         }
         else if (GetAsyncKeyState(0x53))//S
         {
-            LightPosition.x = LightPosition.x - 1;
+            LightPosition.y = LightPosition.y - 1;
         }
         if (GetAsyncKeyState(0x41))//D
         {
-            LightPosition.y = LightPosition.y + 1;
+            LightPosition.x = LightPosition.x + 1;
         }
         else if (GetAsyncKeyState(0x44))//A
         {
-            LightPosition.y = LightPosition.y - 1;
+            LightPosition.x = LightPosition.x - 1;
         }
     } 
     else if (currentView == "Camera")
@@ -805,17 +805,17 @@ void Application::Update()
         if (shaderType == "Normals")
         {
             shaderType = "Parallax";
-            g_GameObject.m_material.Material.choice = 0;
+            g_GameObject.m_material.Material.choice = 1;
         }
         else if (shaderType == "Parallax")
         {
             shaderType = "POM";
-            g_GameObject.m_material.Material.choice = 1;
+            g_GameObject.m_material.Material.choice = 2;
         }
         else if (shaderType == "POM")
         {
             shaderType = "Normals";
-            g_GameObject.m_material.Material.choice = 2;
+            g_GameObject.m_material.Material.choice = 0;
         }
     }
 }
@@ -860,18 +860,19 @@ void Application::Render()
     MARKING SCHEME: Render to Texture Quad
     DESCRIPTION: Render To Texture on Quad 
     ***********************************************/
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
+    g_GameObject.SetMaterialConstantBuffer(g_pImmediateContext);
+    ID3D11Buffer* materialCB = g_GameObject.getMaterialConstantBuffer();
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &materialCB);
+
     if (textureType == "RTT")
     {
         g_pImmediateContext->OMSetRenderTargets(1, &_pRTTRenderTargetView, g_pDepthStencilView);
         g_pImmediateContext->ClearRenderTargetView(_pRTTRenderTargetView, Colors::DarkGreen);
-
-        g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-        g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-
-        g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-        g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
-        ID3D11Buffer* materialCB = g_GameObject.getMaterialConstantBuffer();
-        g_pImmediateContext->PSSetConstantBuffers(1, 1, &materialCB);
 
         g_GameObject.SetTextureResourceView(_pTextureRV);
         g_GameObject.draw(g_pImmediateContext);
@@ -913,7 +914,9 @@ void Application::Render()
     {
         ImGui::NewFrame();
         static ImVec2 pos(0, 0);
+        static ImVec2 size(400, 125);
         ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(size, ImGuiCond_Always);
         bool open;
         ImGui::Begin("Positions", &open);
         
@@ -926,10 +929,49 @@ void Application::Render()
         ImGui::End();
     }
     {
+        static ImVec2 pos(0, 125);
+        static ImVec2 size(400, 100);
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(size, ImGuiCond_Always);
+        bool open;
+
         ImGui::Begin("Light");
         ImGui::SliderFloat("Light Position X", &LightPosition.x, -10.0f, 10.0f);
         ImGui::SliderFloat("Light Position Y", &LightPosition.y, -10.0f, 10.0f);
         ImGui::SliderFloat("Light Position Z", &LightPosition.z, -10.0f, 10.0f);
+        ImGui::End();
+    }
+    {
+        static ImVec2 pos(880, 0);
+        static ImVec2 size(400, 300);
+        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(size, ImGuiCond_Always);
+        bool open;
+
+        ImGui::Begin("Instructions");
+        ImGui::Text("Change Control Object (Light / Camera) : SPACE");
+        ImGui::Text("Change Texture Type : T");
+        ImGui::Text("Change Texture Mapping : R");
+
+        ImGui::BeginTabBar("Control Types");
+        if (ImGui::BeginTabItem("Light"))
+        {
+            ImGui::Text("Light +y : W");
+            ImGui::Text("Light -y : S");
+            ImGui::Text("\nLight +x : A");
+            ImGui::Text("Light -x : D");
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Camera"))
+        {
+            ImGui::Text("Camera Move Forward : W");
+            ImGui::Text("Camera Move Backward : S");
+            ImGui::Text("Camera Move Left : A");
+            ImGui::Text("Camera Move Right : D");
+            ImGui::Text("\nCamera Look : Hold Right Click w/ Mouse");
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
         ImGui::End();
     }
     // Render dear imgui into screen

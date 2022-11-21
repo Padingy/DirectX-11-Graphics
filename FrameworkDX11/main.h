@@ -101,7 +101,7 @@ private:
 
 	string currentView = "Light";
 	string shaderType = "Normals";
-	string textureType = "RTT";
+	string textureType = "texture";
 	bool fullscreenQuadRenderType = false;
 
 	Camera* camera;
@@ -112,7 +112,7 @@ private:
 	float m_smoothing = 0.5f;
 	float m_viewSensitivity = 0.65f;
 
-	XMFLOAT4 LightPosition = XMFLOAT4(0.0f, 0.0f, -3.0f, 1.0f);
+	XMFLOAT4 LightPosition = XMFLOAT4(-3.0f, 0.0f, 0.0f, 1.0f);
 
 
 };

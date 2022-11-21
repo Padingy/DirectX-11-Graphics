@@ -37,6 +37,7 @@ public:
 	void SetTextureResourceView(ID3D11ShaderResourceView* textureRV) { m_pTextureResourceView = textureRV; };
 	XMFLOAT4X4*							getTransform() { return &m_World; }
 	ID3D11SamplerState**				getTextureSamplerState() { return &m_pSamplerLinear; }
+	void SetMaterialConstantBuffer(ID3D11DeviceContext* pContext) { pContext->UpdateSubresource(m_pMaterialConstantBuffer, 0, nullptr, &m_material, 0, 0); };
 	ID3D11Buffer*						getMaterialConstantBuffer() { return m_pMaterialConstantBuffer;}
 	void								setPosition(XMFLOAT3 position);
 
