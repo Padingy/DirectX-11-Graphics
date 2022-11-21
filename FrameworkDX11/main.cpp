@@ -787,7 +787,7 @@ void Application::Update()
             camera->Move(2.0f, Left);
         }
 
-        if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+        if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
         {
             if (currentMouseMov.x != (1280 / 2) || currentMouseMov.y != (720 / 2))
             {

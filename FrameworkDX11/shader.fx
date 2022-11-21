@@ -205,6 +205,18 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
     return TBN;
 }
 
+float3 CalcBumpMap(float2 texCoords)
+{
+    float3 bumpMap;
+    bumpMap = txNormal.Sample(samLinear, texCoords).rgb;
+	
+    bumpMap.x = (-bumpMap.x * 2.0f) + 1.0f;
+    bumpMap.y = (-bumpMap.y * 2.0f) + 1.0f;
+    bumpMap.z = -bumpMap.z;
+	
+    return bumpMap;
+}
+
 LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 lightVectorTS, float3 eyeVectorTS)
 {
 	float3 vertexToEye = eyeVectorTS - vertexPos;
@@ -390,14 +402,9 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	DESCRIPTION: Map sampling, normal value decompression, transformation to tangent space
 	***********************************************/
 
-		float3 bumpMap;
-		bumpMap = txNormal.Sample(samLinear, IN.Tex).rgb;
-
-		bumpMap.x = (bumpMap.x * 2.0f) - 1.0f;
-		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
-		bumpMap.z = -bumpMap.z;
-
-		LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS, vertexToEyeTS);
+		//Normal Mapping is now enabled always throughout the application this is kept in to keep the original Module handin marking scheme areas the same.
+		
+        LightingResult lit = ComputeLighting(IN.worldPos, normalize(CalcBumpMap(IN.Tex)), vertexToLightTS, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -424,15 +431,8 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 		if (texCoords.x >= 1.0 || texCoords.y >= 1.0 || texCoords.x <= 0.0 || texCoords.y <= 0.0)
 			discard;
-
-		float3 bumpMap;
-		bumpMap = txNormal.Sample(samLinear, texCoords).rgb;
-
-		bumpMap.x = (bumpMap.x * 2.0f) - 1.0f;
-		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
-		bumpMap.z = -bumpMap.z;
-
-        LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight, vertexToEyeTS);
+		
+        LightingResult lit = ComputeLighting(IN.worldPos, normalize(CalcBumpMap(texCoords)), vertexToLightTS, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -457,15 +457,8 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 		if (texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
 			discard;
-
-		float3 bumpMap;
-		bumpMap = txNormal.Sample(samLinear, texCoords).rgb;
-
-		bumpMap.x = (bumpMap.x * 2.0f) - 1.0f;
-		bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
-		bumpMap.z = -bumpMap.z;
-
-        LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLight, vertexToEyeTS);
+		
+        LightingResult lit = ComputeLighting(IN.worldPos, normalize(CalcBumpMap(texCoords)), vertexToLightTS, vertexToEyeTS);
 		float4 texColor = { 1, 1, 1, 1 };
 
 
@@ -483,14 +476,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 		return finalColor;
 	}
-	float3 bumpMap;
-	bumpMap = txNormal.Sample(samLinear, IN.Tex).rgb;
-
-	bumpMap.x = (bumpMap.x * 2.0f) - 1.0f;
-	bumpMap.y = (bumpMap.y * 2.0f) - 1.0f;
-	bumpMap.z = -bumpMap.z;
-
-    LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpMap), vertexToLightTS, vertexToEyeTS);
+    LightingResult lit = ComputeLighting(IN.worldPos, normalize(CalcBumpMap(IN.Tex)), vertexToLightTS, vertexToEyeTS);
 	float4 texColor = { 1, 1, 1, 1 };
 
 
