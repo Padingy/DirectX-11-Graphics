@@ -105,8 +105,19 @@ void Camera::Move(float movementSpeed, Direction direction)
 
 void Camera::Rotate(float rotateAmountX, float rotateAmountY)
 {
-	XMVECTOR cameraRight1 = XMVector3Cross(camera._atVector, camera._upVector);
+	/*XMVECTOR cameraRight1 = XMVector3Cross(camera._atVector, camera._upVector);
 	camera._atVector = camera._atVector - (cameraRight1 * rotateAmountX);
 	camera._atVector = camera._atVector - (camera._upVector * rotateAmountY);
+	SetViewMatrix();*/
+
+	camera.camRotationMatrix = XMMatrixRotationRollPitchYaw(rotateAmountY, rotateAmountX, 0);
+
+	camera._atVector = XMVector3TransformCoord(camera.DefaultForward, camera.camRotationMatrix);
+	camera._atVector = XMVector3Normalize(camera._atVector);
+
+	camera.camRight = XMVector3TransformCoord(camera.DefaultRight, camera.camRotationMatrix);
+	camera.camForward = XMVector3TransformCoord(camera.DefaultForward, camera.camRotationMatrix);
+	camera._upVector = XMVector3Cross(camera.camForward, camera.camRight);
+
 	SetViewMatrix();
 }

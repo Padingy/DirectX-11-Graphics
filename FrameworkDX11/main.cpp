@@ -789,12 +789,17 @@ void Application::Update()
 
         if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
         {
-            if (currentMouseMov.x != (1280 / 2) || currentMouseMov.y != (720 / 2))
+            if (currentMouseMov.x != lastMouseMov.x || currentMouseMov.y != lastMouseMov.y)
             {
-                moveAmountX = currentMouseMov.x - (1280 / 2);
+                /*moveAmountX = currentMouseMov.x - (1280 / 2);
                 moveAmountY = currentMouseMov.y - (720 / 2);
                 camera->Rotate((moveAmountX * 0.01), (moveAmountY * 0.01));
-                SetCursorPos(640, 360);
+                SetCursorPos(640, 360);*/
+
+                moveAmountX = currentMouseMov.x - lastMouseMov.x;
+                moveAmountY = currentMouseMov.y - lastMouseMov.y;
+                camera->Rotate((moveAmountX * 0.01f), (moveAmountY * 0.01f));
+                
             }
         }
 

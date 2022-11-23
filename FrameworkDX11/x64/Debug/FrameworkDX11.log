@@ -4,10 +4,8 @@ C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(568,4
 C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(568,37): warning C4100: 'width': unreferenced formal parameter
 C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(650,7): warning C4189: 'xPos': local variable is initialized but not referenced
 C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(651,7): warning C4189: 'yPos': local variable is initialized but not referenced
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(794,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(795,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(796,67): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(796,45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(936,14): warning C4101: 'open': unreferenced local variable
-C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(949,14): warning C4101: 'open': unreferenced local variable
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(799,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(800,49): warning C4244: '=': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(941,14): warning C4101: 'open': unreferenced local variable
+C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\FrameworkDX11\main.cpp(954,14): warning C4101: 'open': unreferenced local variable
   FrameworkDX11.vcxproj -> C:\Users\buggi\Documents\GitHub\DirectX-11-Graphics\x64\Debug\FrameworkDX11.exe

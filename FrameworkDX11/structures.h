@@ -106,6 +106,12 @@ struct LightPropertiesConstantBuffer
 
 struct CameraS
 {
+	XMMATRIX camRotationMatrix;
+	XMVECTOR DefaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR DefaultRight = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR camForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	XMVECTOR camRight = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+
 	XMFLOAT4 _eye;
 	XMVECTOR _eyeVector;
 	XMFLOAT4 _at;

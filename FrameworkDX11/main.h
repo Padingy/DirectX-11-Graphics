@@ -107,6 +107,7 @@ private:
 	Camera* camera;
 
 	POINT currentMouseMov = {};
+	POINT lastMouseMov = {};
 	float moveAmountX;
 	float moveAmountY;
 	float m_smoothing = 0.5f;
